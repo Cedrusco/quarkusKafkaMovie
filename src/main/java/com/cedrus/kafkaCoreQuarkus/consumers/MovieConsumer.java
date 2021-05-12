@@ -36,12 +36,9 @@ public class MovieConsumer {
         stringDeserializer = Serdes.String().deserializer();
         final Properties kafkaProperties = new Properties();
         kafkaProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
-        kafkaProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        kafkaProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
         kafkaProperties.put(ConsumerConfig.GROUP_ID_CONFIG,"movieGroup1");
 
-        this.consumer = new KafkaConsumer<String, String>(kafkaProperties);
-
+        this.consumer = new KafkaConsumer<String, String>(kafkaProperties,stringDeserializer,stringDeserializer);
 
     }
 
