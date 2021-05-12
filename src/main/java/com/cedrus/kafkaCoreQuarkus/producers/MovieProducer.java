@@ -30,11 +30,12 @@ public class MovieProducer {
 
         stringSerializer = Serdes.String().serializer();
         final Properties kafkaProperties = new Properties();
-        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaConfig.getBootstrapServers());
+        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
         kafkaProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
         this.producer = new KafkaProducer<String, String>(kafkaProperties);
     }
+
 
     public void sendMovieToKafka(Movie movie){
         ProducerRecord<String,String> movieRecord =
@@ -47,7 +48,7 @@ public class MovieProducer {
                 logger.info("\nReceived new metadata: \n" +
                         "Topic: " + metadata.topic() + "\n" +
                         "KEY: " + movieRecord.key() + "\n" +
-                        "VALUE: " + movieRecord.toString() + "\n" +
+                        "VALUE: " + movieRecord.value() + "\n" +
                         "Partition: " + metadata.partition() + "\n" +
                         "Offset: " + metadata.offset());
             }

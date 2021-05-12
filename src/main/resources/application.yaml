@@ -1,5 +1,5 @@
 kafka:
-  kafkaAppId: movie-test
-  autoOffsetReset: latest
-  bootstrapServers: localhost:9092
-  topicName: movies
+  kafka-app-id: movie-test
+  auto-offset-reset: latest
+  bootstrap-servers: "127.0.0.1:9092"
+  topic-name: movies
