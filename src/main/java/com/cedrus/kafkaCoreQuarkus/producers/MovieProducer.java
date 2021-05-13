@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Properties;
 
 @Slf4j
@@ -21,18 +20,15 @@ public class MovieProducer {
 
     private static Logger logger = LoggerFactory.getLogger(MovieProducer.class);
 
-    @Inject
-    private KafkaConfig kafkaConfig;
-
+    //there is an implicit "inject" here --> https://quarkus.io/guides/cdi#can-i-use-setter-and-constructor-injection
+    private final KafkaConfig kafkaConfig;
     private final Producer<String,Movie> producer;
-    private final Serializer<String> stringSerializer;
 
     public MovieProducer(KafkaConfig kafkaConfig){
-
-        stringSerializer = Serdes.String().serializer();
+        this.kafkaConfig = kafkaConfig;
 
         final Properties kafkaProperties = new Properties();
-        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaConfig.getBootstrapServers());
+        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaConfig.getBootstrapServers());
         kafkaProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ObjectMapperSerializer.class.getName());
 
