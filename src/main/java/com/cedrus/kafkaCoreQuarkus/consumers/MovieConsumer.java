@@ -2,6 +2,8 @@ package com.cedrus.kafkaCoreQuarkus.consumers;
 
 
 import com.cedrus.kafkaCoreQuarkus.config.KafkaConfig;
+import com.cedrus.kafkaCoreQuarkus.models.Movie;
+import com.cedrus.kafkaCoreQuarkus.models.MovieDeserializer;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -25,20 +27,22 @@ public class MovieConsumer {
 
     private static Logger logger = LoggerFactory.getLogger(MovieConsumer.class);
 
+    private final Consumer<String, Movie> consumer;
+    private final Deserializer<String> stringDeserializer;
+
     @Inject
     KafkaConfig kafkaConfig;
 
-    private final Consumer<String,String> consumer;
-    private final Deserializer<String> stringDeserializer;
-
-    public MovieConsumer(){
+    public MovieConsumer(KafkaConfig kafkaConfig){
 
         stringDeserializer = Serdes.String().deserializer();
         final Properties kafkaProperties = new Properties();
-        kafkaProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
+        kafkaProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaConfig.getBootstrapServers());
         kafkaProperties.put(ConsumerConfig.GROUP_ID_CONFIG,"movieGroup1");
+        kafkaProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
+        kafkaProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,MovieDeserializer.class.getName());
 
-        this.consumer = new KafkaConsumer<String, String>(kafkaProperties,stringDeserializer,stringDeserializer);
+        this.consumer = new KafkaConsumer<String, Movie>(kafkaProperties);
 
     }
 
@@ -47,10 +51,9 @@ public class MovieConsumer {
 
     public void initConsumer(@Observes StartupEvent ev){
         this.consumer.subscribe(Collections.singleton(kafkaConfig.getTopicName()));
-
         new Thread(() -> {
             while (! done) {
-                final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
+                final ConsumerRecords<String, Movie> consumerRecords = consumer.poll(Duration.ofSeconds(1));
 
                 consumerRecords.forEach(record -> {
                     logger.info("\nPolled Record:\nKEY: {} \nVALUE: {} \nPARTITION: {} \nOFFSET: {}\n",

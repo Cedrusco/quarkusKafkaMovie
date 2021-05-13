@@ -22,18 +22,17 @@ public class MovieProducer {
     private static Logger logger = LoggerFactory.getLogger(MovieProducer.class);
 
     @Inject
-    KafkaConfig kafkaConfig;
-
+    private KafkaConfig kafkaConfig;
 
     private final Producer<String,Movie> producer;
     private final Serializer<String> stringSerializer;
 
-    public MovieProducer(){
+    public MovieProducer(KafkaConfig kafkaConfig){
 
         stringSerializer = Serdes.String().serializer();
 
         final Properties kafkaProperties = new Properties();
-        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaConfig.getBootstrapServers());
         kafkaProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ObjectMapperSerializer.class.getName());
 
